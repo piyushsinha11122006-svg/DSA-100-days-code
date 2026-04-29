@@ -1,0 +1,98 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX 100
+
+// Node structure
+struct Node {
+    int data;
+    struct Node* next;
+};
+
+// Create node
+struct Node* createNode(int val) {
+    struct Node* newNode =
+        (struct Node*)malloc(sizeof(struct Node));
+
+    newNode->data = val;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// Add directed edge
+void addEdge(struct Node* adj[], int u, int v) {
+    struct Node* newNode = createNode(v);
+    newNode->next = adj[u];
+    adj[u] = newNode;
+}
+
+// Stack for topo order
+int stack[MAX];
+int top = -1;
+
+void push(int x) {
+    stack[++top] = x;
+}
+
+int pop() {
+    return stack[top--];
+}
+
+// DFS function
+void DFS(struct Node* adj[], int v, int visited[]) {
+
+    visited[v] = 1;
+
+    struct Node* temp = adj[v];
+
+    while (temp != NULL) {
+        if (!visited[temp->data]) {
+            DFS(adj, temp->data, visited);
+        }
+        temp = temp->next;
+    }
+
+    // push after visiting all neighbors
+    push(v);
+}
+
+// Topological sort
+void topoSort(struct Node* adj[], int n) {
+
+    int visited[MAX] = {0};
+
+    for (int i = 0; i < n; i++) {
+        if (!visited[i]) {
+            DFS(adj, i, visited);
+        }
+    }
+
+    // print stack (reverse order)
+    while (top != -1) {
+        printf("%d ", pop() + 1);
+    }
+}
+
+int main() {
+    int n, m;
+    scanf("%d %d", &n, &m);
+
+    struct Node* adj[n];
+
+    for (int i = 0; i < n; i++)
+        adj[i] = NULL;
+
+    // directed edges
+    for (int i = 0; i < m; i++) {
+        int u, v;
+        scanf("%d %d", &u, &v);
+
+        u--; v--;
+
+        addEdge(adj, u, v);
+    }
+
+    topoSort(adj, n);
+
+    return 0;
+}
