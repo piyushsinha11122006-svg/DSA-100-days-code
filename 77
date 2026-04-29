@@ -1,0 +1,85 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX 100
+
+// Node structure
+struct Node {
+    int data;
+    struct Node* next;
+};
+
+// Create node
+struct Node* createNode(int val) {
+    struct Node* newNode =
+        (struct Node*)malloc(sizeof(struct Node));
+
+    newNode->data = val;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// Add undirected edge
+void addEdge(struct Node* adj[], int u, int v) {
+
+    struct Node* newNode = createNode(v);
+    newNode->next = adj[u];
+    adj[u] = newNode;
+
+    newNode = createNode(u);
+    newNode->next = adj[v];
+    adj[v] = newNode;
+}
+
+// DFS
+void DFS(struct Node* adj[], int v, int visited[]) {
+
+    visited[v] = 1;
+
+    struct Node* temp = adj[v];
+
+    while (temp != NULL) {
+        if (!visited[temp->data]) {
+            DFS(adj, temp->data, visited);
+        }
+        temp = temp->next;
+    }
+}
+
+int main() {
+
+    int n, m;
+    scanf("%d %d", &n, &m);
+
+    struct Node* adj[n];
+
+    for (int i = 0; i < n; i++)
+        adj[i] = NULL;
+
+    // edges
+    for (int i = 0; i < m; i++) {
+        int u, v;
+        scanf("%d %d", &u, &v);
+
+        u--; v--;
+
+        addEdge(adj, u, v);
+    }
+
+    int visited[MAX] = {0};
+
+    // start DFS from node 0
+    DFS(adj, 0, visited);
+
+    // check connectivity
+    for (int i = 0; i < n; i++) {
+        if (!visited[i]) {
+            printf("NOT CONNECTED");
+            return 0;
+        }
+    }
+
+    printf("CONNECTED");
+
+    return 0;
+}
