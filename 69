@@ -1,0 +1,80 @@
+#include <stdio.h>
+
+#define MAX 100
+#define INF 999999
+
+int minDistance(int dist[], int visited[], int n) {
+    int min = INF, minIndex = -1;
+
+    for (int i = 0; i < n; i++) {
+        if (!visited[i] && dist[i] < min) {
+            min = dist[i];
+            minIndex = i;
+        }
+    }
+
+    return minIndex;
+}
+
+void dijkstra(int graph[MAX][MAX], int n, int src) {
+
+    int dist[MAX];
+    int visited[MAX] = {0};
+
+    // Initialize distances
+    for (int i = 0; i < n; i++)
+        dist[i] = INF;
+
+    dist[src] = 0;
+
+    for (int count = 0; count < n - 1; count++) {
+
+        int u = minDistance(dist, visited, n);
+
+        visited[u] = 1;
+
+        // Relax neighbors
+        for (int v = 0; v < n; v++) {
+
+            if (!visited[v] &&
+                graph[u][v] &&
+                dist[u] != INF &&
+                dist[u] + graph[u][v] < dist[v]) {
+
+                dist[v] = dist[u] + graph[u][v];
+            }
+        }
+    }
+
+    // Print shortest distances
+    for (int i = 0; i < n; i++) {
+        printf("%d ", dist[i]);
+    }
+}
+
+int main() {
+
+    int n, m;
+    scanf("%d %d", &n, &m);
+
+    int graph[MAX][MAX] = {0};
+
+    // Input edges: u v weight
+    for (int i = 0; i < m; i++) {
+        int u, v, w;
+        scanf("%d %d %d", &u, &v, &w);
+
+        u--; v--;
+
+        graph[u][v] = w;
+        graph[v][u] = w; // remove if directed
+    }
+
+    int src;
+    scanf("%d", &src);
+    src--;
+
+    dijkstra(graph, n, src);
+
+    return 0;
+}
