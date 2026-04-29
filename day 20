@@ -1,0 +1,41 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Simple hash map using array (for demonstration)
+#define MAX 1000
+
+int main() {
+    int n;
+    scanf("%d", &n);
+
+    int arr[n];
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &arr[i]);
+    }
+
+    int prefix_sum = 0;
+    int count = 0;
+
+    // Hash map array (offset to handle negative sums)
+    int hash[2 * MAX + 1] = {0};
+    int offset = MAX;
+
+    for (int i = 0; i < n; i++) {
+        prefix_sum += arr[i];
+
+        // Case when prefix sum is 0
+        if (prefix_sum == 0)
+            count++;
+
+        // If prefix_sum seen before
+        if (hash[prefix_sum + offset] > 0)
+            count += hash[prefix_sum + offset];
+
+        // Store prefix_sum
+        hash[prefix_sum + offset]++;
+    }
+
+    printf("%d\n", count);
+
+    return 0;
+}
