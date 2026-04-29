@@ -1,0 +1,75 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Node of adjacency list
+struct Node {
+    int data;
+    struct Node* next;
+};
+
+// Create new node
+struct Node* createNode(int val) {
+    struct Node* newNode =
+        (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = val;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// Add edge to list
+void addEdge(struct Node* adj[], int u, int v) {
+
+    struct Node* newNode = createNode(v);
+    newNode->next = adj[u];
+    adj[u] = newNode;
+
+    // Since undirected graph
+    newNode = createNode(u);
+    newNode->next = adj[v];
+    adj[v] = newNode;
+}
+
+// Print adjacency list
+void printGraph(struct Node* adj[], int n) {
+
+    for (int i = 0; i < n; i++) {
+        printf("%d -> ", i + 1);
+
+        struct Node* temp = adj[i];
+
+        while (temp != NULL) {
+            printf("%d", temp->data);
+            if (temp->next != NULL)
+                printf(" -> ");
+            temp = temp->next;
+        }
+
+        printf("\n");
+    }
+}
+
+int main() {
+    int n, m;
+    scanf("%d %d", &n, &m);
+
+    // Array of adjacency lists
+    struct Node* adj[n];
+
+    // Initialize all heads as NULL
+    for (int i = 0; i < n; i++)
+        adj[i] = NULL;
+
+    // Input edges
+    for (int i = 0; i < m; i++) {
+        int u, v;
+        scanf("%d %d", &u, &v);
+
+        // Convert to 0-based index
+        addEdge(adj, u - 1, v - 1);
+    }
+
+    // Print adjacency list
+    printGraph(adj, n);
+
+    return 0;
+}
