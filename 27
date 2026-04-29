@@ -1,0 +1,99 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int data;
+    struct Node* next;
+};
+
+// Create node
+struct Node* createNode(int value) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = value;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// Insert at end
+struct Node* insertEnd(struct Node* head, int value) {
+    struct Node* newNode = createNode(value);
+
+    if (head == NULL)
+        return newNode;
+
+    struct Node* temp = head;
+    while (temp->next != NULL)
+        temp = temp->next;
+
+    temp->next = newNode;
+    return head;
+}
+
+// Get length
+int getLength(struct Node* head) {
+    int len = 0;
+    while (head != NULL) {
+        len++;
+        head = head->next;
+    }
+    return len;
+}
+
+// Find intersection by value
+void findIntersection(struct Node* l1, struct Node* l2) {
+    int len1 = getLength(l1);
+    int len2 = getLength(l2);
+
+    struct Node* ptr1 = l1;
+    struct Node* ptr2 = l2;
+
+    // Align both lists
+    if (len1 > len2) {
+        int diff = len1 - len2;
+        while (diff--)
+            ptr1 = ptr1->next;
+    } else {
+        int diff = len2 - len1;
+        while (diff--)
+            ptr2 = ptr2->next;
+    }
+
+    // Traverse together
+    while (ptr1 != NULL && ptr2 != NULL) {
+        if (ptr1->data == ptr2->data) {
+            printf("%d\n", ptr1->data);
+            return;
+        }
+        ptr1 = ptr1->next;
+        ptr2 = ptr2->next;
+    }
+
+    printf("No Intersection\n");
+}
+
+int main() {
+    int n, m;
+
+    struct Node* l1 = NULL;
+    struct Node* l2 = NULL;
+
+    // First list
+    scanf("%d", &n);
+    for (int i = 0; i < n; i++) {
+        int x;
+        scanf("%d", &x);
+        l1 = insertEnd(l1, x);
+    }
+
+    // Second list
+    scanf("%d", &m);
+    for (int i = 0; i < m; i++) {
+        int x;
+        scanf("%d", &x);
+        l2 = insertEnd(l2, x);
+    }
+
+    findIntersection(l1, l2);
+
+    return 0;
+}
