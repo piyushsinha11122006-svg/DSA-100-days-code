@@ -1,0 +1,99 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX 100
+
+// Node structure
+struct Node {
+    int data;
+    struct Node* next;
+};
+
+// Create node
+struct Node* createNode(int val) {
+    struct Node* newNode =
+        (struct Node*)malloc(sizeof(struct Node));
+
+    newNode->data = val;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// Add directed edge
+void addEdge(struct Node* adj[], int u, int v) {
+    struct Node* newNode = createNode(v);
+    newNode->next = adj[u];
+    adj[u] = newNode;
+}
+
+// DFS cycle detection
+int DFS(struct Node* adj[], int v,
+        int visited[], int recStack[]) {
+
+    visited[v] = 1;
+    recStack[v] = 1;
+
+    struct Node* temp = adj[v];
+
+    while (temp != NULL) {
+
+        int neighbor = temp->data;
+
+        // If not visited → recurse
+        if (!visited[neighbor]) {
+            if (DFS(adj, neighbor, visited, recStack))
+                return 1;
+        }
+        // If in recursion stack → cycle found
+        else if (recStack[neighbor]) {
+            return 1;
+        }
+
+        temp = temp->next;
+    }
+
+    recStack[v] = 0; // remove from current path
+    return 0;
+}
+
+int isCycle(struct Node* adj[], int n) {
+
+    int visited[MAX] = {0};
+    int recStack[MAX] = {0};
+
+    for (int i = 0; i < n; i++) {
+        if (!visited[i]) {
+            if (DFS(adj, i, visited, recStack))
+                return 1;
+        }
+    }
+
+    return 0;
+}
+
+int main() {
+    int n, m;
+    scanf("%d %d", &n, &m);
+
+    struct Node* adj[n];
+
+    for (int i = 0; i < n; i++)
+        adj[i] = NULL;
+
+    // edges (directed)
+    for (int i = 0; i < m; i++) {
+        int u, v;
+        scanf("%d %d", &u, &v);
+
+        u--; v--;
+
+        addEdge(adj, u, v);
+    }
+
+    if (isCycle(adj, n))
+        printf("YES");
+    else
+        printf("NO");
+
+    return 0;
+}
