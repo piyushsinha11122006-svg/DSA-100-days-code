@@ -1,0 +1,88 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Structure to represent a meeting interval
+typedef struct {
+    int start;
+    int end;
+} Interval;
+
+// Comparator for sorting intervals by start time
+int compareIntervals(const void* a, const void* b) {
+    return ((Interval*)a)->start - ((Interval*)b)->start;
+}
+
+// Min-Heap functions for end times
+void swap(int* a, int* b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+void minHeapify(int heap[], int size, int i) {
+    int smallest = i;
+    int left = 2 * i + 1;
+    int right = 2 * i + 2;
+
+    if (left < size && heap[left] < heap[smallest]) smallest = left;
+    if (right < size && heap[right] < heap[smallest]) smallest = right;
+
+    if (smallest != i) {
+        swap(&heap[i], &heap[smallest]);
+        minHeapify(heap, size, smallest);
+    }
+}
+
+void insertHeap(int heap[], int* size, int value) {
+    heap[*size] = value;
+    int i = *size;
+    (*size)++;
+
+    while (i != 0 && heap[(i - 1) / 2] > heap[i]) {
+        swap(&heap[i], &heap[(i - 1) / 2]);
+        i = (i - 1) / 2;
+    }
+}
+
+void extractMin(int heap[], int* size) {
+    heap[0] = heap[*size - 1];
+    (*size)--;
+    minHeapify(heap, *size, 0);
+}
+
+int minMeetingRooms(Interval intervals[], int n) {
+    if (n == 0) return 0;
+
+    // 1. Sort intervals by start time
+    qsort(intervals, n, sizeof(Interval), compareIntervals);
+
+    // 2. Min-heap to store end times of meetings currently in rooms
+    int* heap = (int*)malloc(n * sizeof(int));
+    int heapSize = 0;
+
+    // Add the first meeting's end time
+    insertHeap(heap, &heapSize, intervals[0].end);
+
+    for (int i = 1; i < n; i++) {
+        // If the room with the earliest end time is free
+        if (intervals[i].start >= heap[0]) {
+            extractMin(heap, &heapSize);
+        }
+        
+        // Add current meeting's end time (either reusing or adding a room)
+        insertHeap(heap, &heapSize, intervals[i].end);
+    }
+
+    int result = heapSize;
+    free(heap);
+    return result;
+}
+
+int main() {
+    Interval intervals[] = {{0, 30}, {5, 10}, {15, 20}};
+    int n = sizeof(intervals) / sizeof(intervals[0]);
+
+    printf("Minimum rooms required: %d\n", minMeetingRooms(intervals, n));
+
+    return 0;
+}
