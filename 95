@@ -1,0 +1,86 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Node for the linked list in each bucket
+struct Node {
+    float data;
+    struct Node* next;
+};
+
+// Function to sort an individual bucket using Insertion Sort
+struct Node* insertionSortList(struct Node* head) {
+    if (!head || !head->next) return head;
+
+    struct Node* sorted = NULL;
+    struct Node* curr = head;
+
+    while (curr != NULL) {
+        struct Node* next = curr->next;
+        if (!sorted || sorted->data >= curr->data) {
+            curr->next = sorted;
+            sorted = curr;
+        } else {
+            struct Node* temp = sorted;
+            while (temp->next != NULL && temp->next->data < curr->data) {
+                temp = temp->next;
+            }
+            curr->next = temp->next;
+            temp->next = curr;
+        }
+        curr = next;
+    }
+    return sorted;
+}
+
+void bucketSort(float arr[], int n) {
+    // 1. Create n empty buckets
+    struct Node** buckets = (struct Node**)malloc(n * sizeof(struct Node*));
+    for (int i = 0; i < n; i++) {
+        buckets[i] = NULL;
+    }
+
+    // 2. Put array elements in different buckets
+    for (int i = 0; i < n; i++) {
+        int bucketIndex = n * arr[i]; // Index in range [0, n-1]
+        struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+        newNode->data = arr[i];
+        newNode->next = buckets[bucketIndex];
+        buckets[bucketIndex] = newNode;
+    }
+
+    // 3. Sort individual buckets and concatenate
+    int index = 0;
+    for (int i = 0; i < n; i++) {
+        buckets[i] = insertionSortList(buckets[i]);
+        
+        struct Node* curr = buckets[i];
+        while (curr != NULL) {
+            arr[index++] = curr->data;
+            struct Node* temp = curr;
+            curr = curr->next;
+            free(temp); // Clean up bucket memory
+        }
+    }
+    free(buckets);
+}
+
+void printArray(float arr[], int n) {
+    for (int i = 0; i < n; i++)
+        printf("%.4f ", arr[i]);
+    printf("\n");
+}
+
+int main() {
+    float arr[] = {0.897, 0.565, 0.656, 0.1234, 0.665, 0.3434};
+    int n = sizeof(arr) / sizeof(arr[0]);
+
+    printf("Original array: \n");
+    printArray(arr, n);
+
+    bucketSort(arr, n);
+
+    printf("\nSorted array: \n");
+    printArray(arr, n);
+
+    return 0;
+}
