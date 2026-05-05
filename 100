@@ -1,0 +1,78 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct {
+    int val;
+    int index;
+} Element;
+
+void merge(Element arr[], Element temp[], int count[], int left, int mid, int right) {
+    int i = left;    // Pointer for left subarray
+    int j = mid + 1; // Pointer for right subarray
+    int k = left;    // Pointer for temp array
+    int rightCount = 0; // Tracks how many elements from right side are smaller
+
+    while (i <= mid && j <= right) {
+        if (arr[j].val < arr[i].val) {
+            // Element on right is smaller; increment the jump counter
+            rightCount++;
+            temp[k++] = arr[j++];
+        } else {
+            // Element on left is being placed; it is larger than all 'rightCount' elements
+            count[arr[i].index] += rightCount;
+            temp[k++] = arr[i++];
+        }
+    }
+
+    // Process remaining elements in left subarray
+    while (i <= mid) {
+        count[arr[i].index] += rightCount;
+        temp[k++] = arr[i++];
+    }
+
+    // Process remaining elements in right subarray
+    while (j <= right) {
+        temp[k++] = arr[j++];
+    }
+
+    // Copy back to original array
+    for (i = left; i <= right; i++) {
+        arr[i] = temp[i];
+    }
+}
+
+void mergeSort(Element arr[], Element temp[], int count[], int left, int right) {
+    if (left < right) {
+        int mid = left + (right - left) / 2;
+        mergeSort(arr, temp, count, left, mid);
+        mergeSort(arr, temp, count, mid + 1, right);
+        merge(arr, temp, count, left, mid, right);
+    }
+}
+
+int main() {
+    int nums[] = {5, 2, 6, 1};
+    int n = sizeof(nums) / sizeof(nums[0]);
+    
+    Element* arr = (Element*)malloc(n * sizeof(Element));
+    Element* temp = (Element*)malloc(n * sizeof(Element));
+    int* count = (int*)calloc(n, sizeof(int));
+
+    for (int i = 0; i < n; i++) {
+        arr[i].val = nums[i];
+        arr[i].index = i;
+    }
+
+    mergeSort(arr, temp, count, 0, n - 1);
+
+    printf("Count of smaller elements on right: \n");
+    for (int i = 0; i < n; i++) {
+        printf("%d ", count[i]);
+    }
+    printf("\n");
+
+    free(arr);
+    free(temp);
+    free(count);
+    return 0;
+}
