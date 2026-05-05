@@ -1,0 +1,64 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Structure to represent an interval
+typedef struct {
+    int start;
+    int end;
+} Interval;
+
+// Helper function to find maximum of two integers
+int max(int a, int b) {
+    return (a > b) ? a : b;
+}
+
+// Comparator function to sort intervals based on start time
+int compareIntervals(const void* a, const void* b) {
+    Interval* i1 = (Interval*)a;
+    Interval* i2 = (Interval*)b;
+    return i1->start - i2->start;
+}
+
+void mergeIntervals(Interval intervals[], int n) {
+    if (n <= 0) return;
+
+    // 1. Sort intervals based on start time
+    qsort(intervals, n, sizeof(Interval), compareIntervals);
+
+    // 2. Use a temporary index to track the position of merged intervals
+    int index = 0; // Points to the last merged interval
+
+    for (int i = 1; i < n; i++) {
+        // If current interval overlaps with the last merged interval
+        if (intervals[index].end >= intervals[i].start) {
+            // Merge them by updating the end time
+            intervals[index].end = max(intervals[index].end, intervals[i].end);
+        } else {
+            // No overlap, move to the next slot and copy current interval
+            index++;
+            intervals[index] = intervals[i];
+        }
+    }
+
+    // 3. Print the results
+    printf("Merged Intervals: \n");
+    for (int i = 0; i <= index; i++) {
+        printf("[%d, %d] ", intervals[i].start, intervals[i].end);
+    }
+    printf("\n");
+}
+
+int main() {
+    Interval intervals[] = {{1, 3}, {2, 6}, {8, 10}, {15, 18}};
+    int n = sizeof(intervals) / sizeof(intervals[0]);
+
+    printf("Original Intervals: \n");
+    for (int i = 0; i < n; i++) {
+        printf("[%d, %d] ", intervals[i].start, intervals[i].end);
+    }
+    printf("\n\n");
+
+    mergeIntervals(intervals, n);
+
+    return 0;
+}
